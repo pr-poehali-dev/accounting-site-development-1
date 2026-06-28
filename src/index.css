@@ -153,4 +153,40 @@
       transform: translateY(0);
     }
   }
+  .lift {
+    @apply transition-all duration-300 ease-out;
+  }
+  .lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -12px hsl(var(--primary) / 0.25);
+  }
+  .underline-grow {
+    position: relative;
+  }
+  .underline-grow::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 2px;
+    width: 0;
+    background: hsl(var(--accent));
+    transition: width 0.3s ease;
+  }
+  .underline-grow:hover::after {
+    width: 100%;
+  }
+}
+
+@media (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a,
+  button,
+  input,
+  textarea,
+  [role="button"] {
+    cursor: none;
+  }
 }

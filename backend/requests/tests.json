@@ -1,0 +1,39 @@
+{
+  "tests": [
+    {
+      "name": "Create request",
+      "method": "POST",
+      "path": "/?action=create_request",
+      "body": {"name": "Тест Тестов", "phone": "+79000000000", "price": "5000", "comment": "Тестовая заявка"},
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login default admin",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {"login": "admin", "password": "salaconsult2026"},
+      "expectedStatus": 200,
+      "expectedBody": {"token": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login wrong password",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {"login": "admin", "password": "wrong"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Requests require auth",
+      "method": "GET",
+      "path": "/?action=requests",
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

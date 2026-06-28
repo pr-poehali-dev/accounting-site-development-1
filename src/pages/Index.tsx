@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import { createRequest } from '@/lib/api';
 
 const HERO_IMG =
   'https://cdn.poehali.dev/projects/175413c5-7109-404b-8d40-74bda43251e5/files/3c38ed3a-6067-41da-81ca-226adf793e5a.jpg';
@@ -49,6 +50,7 @@ const Index = () => {
   const [theme, setTheme] = useState('light');
   const [menuOpen, setMenuOpen] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', price: '', comment: '' });
+  const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -60,13 +62,25 @@ const Index = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: 'Заявка отправлена!',
-      description: 'Мы свяжемся с вами в ближайшее время.',
-    });
-    setForm({ name: '', phone: '', price: '', comment: '' });
+    setSending(true);
+    try {
+      await createRequest(form);
+      toast({
+        title: 'Заявка отправлена!',
+        description: 'Мы свяжемся с вами в ближайшее время.',
+      });
+      setForm({ name: '', phone: '', price: '', comment: '' });
+    } catch {
+      toast({
+        title: 'Ошибка отправки',
+        description: 'Попробуйте ещё раз или позвоните нам.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -89,7 +103,7 @@ const Index = () => {
               <button
                 key={n.id}
                 onClick={() => scrollTo(n.id)}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="underline-grow text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {n.label}
               </button>
@@ -196,9 +210,9 @@ const Index = () => {
             {SERVICES.map((s) => (
               <div
                 key={s.title}
-                className="group p-8 rounded-2xl bg-card border border-border hover:border-accent hover:shadow-xl transition-all"
+                className="lift group p-8 rounded-2xl bg-card border border-border hover:border-accent"
               >
-                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center mb-5 group-hover:bg-accent transition-colors">
+                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center mb-5 group-hover:bg-accent group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                   <Icon name={s.icon} size={26} className="text-primary group-hover:text-accent-foreground transition-colors" />
                 </div>
                 <h3 className="font-display text-2xl font-semibold mb-2">{s.title}</h3>
@@ -285,8 +299,9 @@ const Index = () => {
                 value={form.comment}
                 onChange={(e) => setForm({ ...form, comment: e.target.value })}
               />
-              <Button type="submit" size="lg" className="w-full gap-2">
-                <Icon name="Send" size={18} /> Отправить заявку
+              <Button type="submit" size="lg" disabled={sending} className="w-full gap-2">
+                <Icon name={sending ? 'Loader2' : 'Send'} size={18} className={sending ? 'animate-spin' : ''} />
+                {sending ? 'Отправка…' : 'Отправить заявку'}
               </Button>
             </form>
           </div>
@@ -305,7 +320,7 @@ const Index = () => {
                 <a
                   key={c.t}
                   href={c.href || undefined}
-                  className="flex items-start gap-4 p-5 rounded-2xl bg-card border border-border hover:border-accent transition-colors"
+                  className="lift flex items-start gap-4 p-5 rounded-2xl bg-card border border-border hover:border-accent"
                 >
                   <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0">
                     <Icon name={c.icon} size={22} className="text-accent" />
